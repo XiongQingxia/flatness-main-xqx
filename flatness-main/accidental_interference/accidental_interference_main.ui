@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>AccidentalFactor</class>
+ <widget class="QWidget" name="AccidentalFactor">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1047</width>
+    <height>641</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>慢偶因素板形干扰评估</string>
+  </property>
+  <property name="windowIcon">
+   <iconset>
+    <normaloff>:/icons/icons/慢偶因素.png</normaloff>:/icons/icons/慢偶因素.png</iconset>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,20">
+   <item>
+    <widget class="NavigationBar" name="NavigationBar"/>
+   </item>
+   <item>
+    <widget class="QStackedWidget" name="stackedWidget">
+     <property name="currentIndex">
+      <number>3</number>
+     </property>
+     <widget class="QWidget" name="LiquidPage"/>
+     <widget class="QWidget" name="ClassPage"/>
+     <widget class="QWidget" name="ReductionPage"/>
+     <widget class="QWidget" name="StopPage"/>
+     <widget class="QWidget" name="MaterialPage"/>
+     <widget class="QWidget" name="RollingPage"/>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>NavigationBar</class>
+   <extends>QWidget</extends>
+   <header>qfluentwidgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../qtResource/resource.qrc"/>
+ </resources>
+ <connections/>
+</ui>
