@@ -5,8 +5,13 @@ from mpl_toolkits.mplot3d import Axes3D
 
 
 def lerangde_fenjie(y, x):
+    """
+    :param y: 数据y
+    :param x: 数据x
+    :return: 0-4次项的勒让德系数
+    """
     from numpy import array
-    from scipy.optimize import leastsq
+    from scipy.optimize import leastsq  # 最小二乘拟合
     def func(x, p):
         """
         数据拟合所用的函数:p0+p1*x+p2*pow(x,2)+p3*pow(x,3)+p4*pow(x,4)
@@ -47,6 +52,11 @@ def lerangde_nihe(xishu, x):
 
 
 def sigema(ai, bi):
+    """
+    :param ai:(array)
+    :param bi:(array)
+    :return: 点乘结果 (list)
+    """
     result = []
     for i in range(len(ai)):
         result.append(ai[i] * bi[i])
@@ -154,6 +164,16 @@ def shujuchuli(data):
 
 
 def gudingyouxian(flat, row_pot, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_eff):
+    """
+    固定优先策略
+    :param flat:
+    :param row_pot:
+    :param tilt_eff:
+    :param WRBP_eff:
+    :param IRB_eff:
+    :param IRB_shift_eff:
+    :return:返回array格式的调控量、调控后板形、板形偏差
+    """
     w_org = []
     row_org = []
     iu_org = []
@@ -221,10 +241,19 @@ def bilikongzhi(flat, row_pot, k_wrb, k_irb, k_irs, tilt_eff, WRBP_eff, IRB_eff,
 
 
 def org_control(flat, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_eff):
-    tilt = sum(sigema(tilt_eff, flat)) / sum(sigema(tilt_eff, tilt_eff))
+    """
+    固定优先序列
+    :param flat:
+    :param tilt_eff:
+    :param WRBP_eff:
+    :param IRB_eff:
+    :param IRB_shift_eff:
+    :return:  调控量和调控后的板形
+    """
+    tilt = sum(sigema(tilt_eff, flat)) / sum(sigema(tilt_eff, tilt_eff))  # 压下倾斜调控量（刘帅毕业论文式6-22）
     new_row = flat - tilt * tilt_eff
-    WRBP = sum(sigema(WRBP_eff, new_row)) / sum(sigema(WRBP_eff, WRBP_eff))
-    WRBP_step = 8
+    WRBP = sum(sigema(WRBP_eff, new_row)) / sum(sigema(WRBP_eff, WRBP_eff))  # WRB调控量
+    WRBP_step = 8  # 形调控机构限值
     IRB_step = 6
     if WRBP >= WRBP_step:
         WRBP = WRBP_step
@@ -249,7 +278,7 @@ def dynamic_priority_sequence(my_flat, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_ef
     动态优先序列
     :param my_flat:需要调节的板形 （1*80）
     :param my_eff: 调控功效 （4*80）
-    :return: 计算调控量 （1*4）
+    :return: 计算调控量 （1*4），调控后的板形
     """
     x = np.linspace(-1, 1, 80)
 
@@ -265,11 +294,11 @@ def dynamic_priority_sequence(my_flat, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_ef
     r_wrb_flat = nums2_relevance(r_wrb, r_flat)  # 计算相似度
     r_irb_flat = nums2_relevance(r_irb, r_flat)
 
-    r_list = np.array([r_wrb_flat, r_irb_flat])
+    r_list = np.array([r_wrb_flat, r_irb_flat])  # WRB和IRB的调控能力与板形偏差的相似度
     names = {0: "wrb", 1: "irb"}
     eff0 = tilt_eff
     eff3 = IRB_shift_eff
-    order = np.argsort(r_list)  # 从小到大的序号
+    order = np.argsort(r_list)  # 从小到大的索引
     w1_name = names[order[1]]
     w2_name = names[order[0]]
     print(w1_name)
@@ -303,6 +332,9 @@ def dynamic_priority_sequence(my_flat, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_ef
 
 
 def pec_control(flat, k_wrb, k_irb, k_irs, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_eff):
+    """
+    比例控制
+    """
     WRBP_step = 8
     IRB_step = 6
     new_row = flat
@@ -327,6 +359,19 @@ def pec_control(flat, k_wrb, k_irb, k_irs, tilt_eff, WRBP_eff, IRB_eff, IRB_shif
 
 
 def Adam(w_start, flat, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_eff, rate, beta1, beta2):
+    """
+    Adam优化
+    :param w_start:
+    :param flat:
+    :param tilt_eff:
+    :param WRBP_eff:
+    :param IRB_eff:
+    :param IRB_shift_eff:
+    :param rate:
+    :param beta1:
+    :param beta2:
+    :return:
+    """
     # rate = 0.05
     echo = 300
     # beta1 = 0.9
@@ -343,7 +388,7 @@ def Adam(w_start, flat, tilt_eff, WRBP_eff, IRB_eff, IRB_shift_eff, rate, beta1,
     WRBP_step = 8
     IRB_step = 6
     for i in range(1, echo):
-        g = -2 * np.dot(eff, (flat - np.dot(w, eff)).T) / 80
+        g = -2 * np.dot(eff, (flat - np.dot(w, eff)).T) / 80   # 魏志彬毕业论文式4-10
         s = beta1 * s + (1 - beta1) * g.T
         r = beta2 * r + (1 - beta2) * g * g
         # print(r)

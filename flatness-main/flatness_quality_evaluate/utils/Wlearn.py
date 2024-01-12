@@ -439,6 +439,10 @@ def mat_read(path):
 
 
 def jugde_row_col(data):
+    """
+    输入:array格式的数据
+    返回:数据从第cols_pot列开始，62 - cols_pot列结束，到row_pot行，其余部分都为0
+    """
     # pot_1=0
     # pot_2=0
     for i in data[10]:
